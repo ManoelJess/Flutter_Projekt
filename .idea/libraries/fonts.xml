@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="fonts">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/firstly/build/app/intermediates/compressed_assets/debug/out/assets/flutter_assets/packages/iconly/fonts/IconlyBold.ttf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/firstly/build/app/intermediates/compressed_assets/debug/out/assets/flutter_assets/packages/iconly/fonts/IconlyBroken.ttf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/firstly/build/app/intermediates/compressed_assets/debug/out/assets/flutter_assets/packages/iconly/fonts/IconlyLight.ttf.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
