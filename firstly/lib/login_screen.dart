@@ -56,7 +56,6 @@ class _FormScreenState extends State<FormScreen>{
                     SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Gérer la connexion avec Facebook
                       },
                       icon: FaIcon(FontAwesomeIcons.facebook),
                       label: Text("With Facebook"),
@@ -118,8 +117,9 @@ class _FormScreenState extends State<FormScreen>{
                 InkWell(
                   child: Container(
                     height: 30,
+                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.indigo,
+                      color: Colors.blue,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Expanded(
@@ -150,7 +150,7 @@ class _FormScreenState extends State<FormScreen>{
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
-                      ))
+                      )),
                       ),
                     ), 
                     ),
@@ -172,6 +172,7 @@ class _FormScreenState extends State<FormScreen>{
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.blue,
                         ),
                       ),
                       ),

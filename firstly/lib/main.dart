@@ -6,11 +6,11 @@ import 'dart:core';
 import 'package:firebase_core/firebase_core.dart';
 
 
- void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp(
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-   );
+  );
   runApp(MyApp());
 }
 
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sizer(
       builder: (context, Orientation, DeviceType) =>MaterialApp(
-         home: welcomeScreen(),
+         home: WelcomeScreen(),
       ),
     );
   }

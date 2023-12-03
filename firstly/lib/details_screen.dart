@@ -4,7 +4,7 @@ import 'custom_bottom_navigation_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-//final CollectionReference announcementsCollection = FirebaseFirestore.instance.collection('announcements');
+final CollectionReference announcementsCollection = FirebaseFirestore.instance.collection('announcements');
 class Announcement {
   final String id; 
   final String title;
@@ -13,6 +13,7 @@ class Announcement {
   final String description;
   final TimeOfDay startTime;
   final TimeOfDay endTime;  
+  String userId;
 
   Announcement({
     required this.id,
@@ -22,6 +23,7 @@ class Announcement {
     required this.startTime,
     required this.endTime,
     required this.description,
+    required this.userId,
   });
 }
 
@@ -167,21 +169,10 @@ class _CustomCreateListingScreenState extends State<CustomCreateListingScreen> {
     }
   }
 FirebaseAuth _auth = FirebaseAuth.instance;
-FirebaseFirestore _firestore = FirebaseFirestore.instance;
- //void _submitForm () {
-  Future<void> _submitForm() async {
+ void _submitForm () {
   if (_formKey.currentState != null) {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState?.save();
-
-      if (title.isEmpty || description.isEmpty || location.isEmpty || selectedDate == null || startTime == null || endTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Bitte alle Informationen Ausfüllen'),
-          backgroundColor: Colors.red,
-        ));
-        return; 
-      }
-
       final newAnnouncement = Announcement(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
@@ -190,54 +181,45 @@ FirebaseFirestore _firestore = FirebaseFirestore.instance;
         startTime: startTime ?? TimeOfDay(hour: 0, minute: 0),
         endTime: endTime ?? TimeOfDay(hour: 0, minute: 0),
         description: description,
+        userId: _auth.currentUser?.uid ?? '',
       );
-          
-         //FirebaseFirestore.instance.collection('announcements').add({
-        //await announcementsCollection.add({
-          await _firestore.collection('announcements').add({
-          //'userId': newAnnouncement.userId,
-          'title': newAnnouncement.title,
-          'location': newAnnouncement.location,
-          'date': newAnnouncement.date,
-          'startTime': newAnnouncement.startTime,
-          'endTime': newAnnouncement.endTime,
-          'description': newAnnouncement.description,
-          'userId': _auth.currentUser?.uid,
+      
+      DateTime startDateTime = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, newAnnouncement.startTime.hour, newAnnouncement.startTime.minute);
+      DateTime endDateTime = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, newAnnouncement.endTime.hour, newAnnouncement.endTime.minute);
+
+      FirebaseFirestore.instance.collection('announcements').add({
+        'title': newAnnouncement.title,
+        'location': newAnnouncement.location,
+        'startDateTime': startDateTime,  
+        'endDateTime': endDateTime,
+        'description': newAnnouncement.description,
+        'userId': _auth.currentUser?.uid,
+      }).then((_) {
+        setState(() {
+          widget.announcements.add(newAnnouncement);
         });
 
-      setState(() {
-        widget.announcements.add(newAnnouncement);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Anzeige erstellt!'),
+        ));
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CustomListingsScreen(announcements: widget.announcements),
+          ),
+        );
+      }).catchError((error) {
+        print('Error adding announcement to Firestore: $error');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Fehler beim Erstellen der Anzeige: $error'),
+          backgroundColor: Colors.red,
+        ));
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Anzeige erstellt!'),
-      ));
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CustomListingsScreen(announcements: widget.announcements),
-        ),
-      );
     }
   }
 }
-Stream<List<Announcement>> getAnnouncements() {
-  return _firestore.collection('announcements').snapshots().map((snapshot) {
-    return snapshot.docs.map((doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      return Announcement(
-        id: doc.id,
-        title: data['title'],
-        location: data['location'],
-        date: data['date']?.toDate(),
-        startTime: data['startTime'],
-        endTime: data['endTime'],
-        description: data['description'],
-      );
-    }).toList();
-  });
-}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -304,7 +286,7 @@ Stream<List<Announcement>> getAnnouncements() {
               Row(
                 children: <Widget>[
                   Text(
-                    "Datum der Aufgabe: ${selectedDate?.toLocal()?.toString().split(' ')[0] ?? 'Nicht ausgewählt'}",
+                    "Datum der Aufgabe: ${selectedDate?.toLocal().toString().split(' ')[0] ?? 'Nicht ausgewählt'}",
                     style: TextStyle(
                       fontSize: 16,
                     ),
